@@ -14,7 +14,7 @@
         </button>
       </div>
       <!-- 底部进度条 -->
-      <div class="progress-indicator">
+      <div class="progress-indicator"  @click="toggleAutoSlide">
         <div
           v-for="(image, index) in images"
           :key="index"
@@ -85,6 +85,8 @@ export default defineComponent({
     const currentImageIndex = ref(0);
     // 进度条宽度
     const progressWidth = ref(0);
+    // 控制轮播状态
+    const isAutoSliding = ref(true); 
 
     // 自动轮播定时器
     let intervalId: number | null = null;
@@ -125,6 +127,16 @@ export default defineComponent({
         intervalId = null;
       }
       stopProgress(); // 停止进度条
+    };
+
+    // 切换轮播状态
+    const toggleAutoSlide = () => {
+      isAutoSliding.value = !isAutoSliding.value; // 切换状态
+      if (isAutoSliding.value) {
+        startAutoSlide(); // 如果开启轮播，则启动
+      } else {
+        stopAutoSlide(); // 如果关闭轮播，则停止
+      }
     };
 
     // 进度条逻辑
@@ -183,6 +195,7 @@ export default defineComponent({
       previousImage,
       handleLogin,
       goToImage,
+      toggleAutoSlide,
     };
   },
 });
