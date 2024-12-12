@@ -7,14 +7,14 @@
         <button class="arrow-button left" @click="previousImage">
             <img src="/images/5.png" alt="Left Arrow" />
         </button>
-        <img :src="images[currentImageIndex]" alt="Advertisement" />
+        <img :src="images[currentImageIndex]" alt="Advertisement" @click="toggleAutoSlide"/>
         <!-- 右侧箭头按钮 -->
         <button class="arrow-button right" @click="nextImage">
             <img src="/images/6.png" alt="Right Arrow" />
         </button>
       </div>
       <!-- 底部进度条 -->
-      <div class="progress-indicator"  @click="toggleAutoSlide">
+      <div class="progress-indicator">
         <div
           v-for="(image, index) in images"
           :key="index"
