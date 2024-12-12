@@ -20,6 +20,7 @@
           :key="index"
           class="progress-bar"
           :class="{ active: index === currentImageIndex }"
+          @click="goToImage(index)"
         >
           <div
             class="progress"
@@ -104,9 +105,16 @@ export default defineComponent({
       resetProgress();
     };
 
+    // 点击进度条切换图片
+    const goToImage = (index: number) => {
+      currentImageIndex.value = index; // 切换到点击的图片索引
+      resetProgress(); // 重置进度条
+      stopAutoSlide();
+    };
+
     // 自动轮播
     const startAutoSlide = () => {
-      intervalId = setInterval(nextImage, 2000); // 每两秒切换到下一张图片
+      intervalId = setInterval(nextImage, 5000); // 每两秒切换到下一张图片
       startProgress(); // 开始进度条
     };
 
@@ -124,7 +132,7 @@ export default defineComponent({
       progressWidth.value = 0;
       progressIntervalId = setInterval(() => {
         if (progressWidth.value < 100) {
-          progressWidth.value += 5; // 每次增加 5%
+          progressWidth.value += 2; // 每次增加 5%
         } else {
           progressWidth.value = 100;
         }
@@ -174,6 +182,7 @@ export default defineComponent({
       nextImage,
       previousImage,
       handleLogin,
+      goToImage,
     };
   },
 });
