@@ -3,6 +3,7 @@ import LoginPage from '../views/LoginPage.vue';
 import HomePage from '../views/HomePage.vue';
 import UserPage from '../views/UserPage.vue';
 import { onMounted } from 'vue';
+import BasicFrameWork from '@/views/BasicFrameWork.vue';
 
 onMounted(() => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -14,23 +15,29 @@ onMounted(() => {
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
+    path: '/login',
     name: 'Login',
     component: LoginPage, // 登录页
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: HomePage, // 主页
+    path: '/',
+    component: BasicFrameWork, // 主页
     meta: { requiresAuth: true }, // 需要登录
+    children: [
+      {
+        path: '/home',
+        name: 'Home',
+        component: HomePage, // 主页
+        meta: { requiresAuth: true }, // 需要登录
+      },
+      {
+        path: '/user',
+        name: 'User',
+        component: UserPage,
+        meta: { requiresAuth: true }, // 需要登录
+      },
+    ],
   },
-  {
-    path: '/user',
-    name: 'User',
-    component: UserPage,
-    meta: { requiresAuth: true }, // 需要登录
-  },
-  
 ];
 
 const router = createRouter({
