@@ -28,13 +28,13 @@ const routes: Array<RouteRecordRaw> = [
         path: '/home',
         name: 'Home',
         component: HomePage, // 主页
-        meta: { requiresAuth: true }, // 需要登录
+        meta: { requiresAuth: true, title: '首页'}, // 需要登录
       },
       {
         path: '/user',
         name: 'User',
         component: UserPage,
-        meta: { requiresAuth: true }, // 需要登录
+        meta: { requiresAuth: true, title: '用户设置' }, // 需要登录
       },
     ],
   },
