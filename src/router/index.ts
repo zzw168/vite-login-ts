@@ -38,6 +38,10 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  {
+    path: '/:catchAll(.*)',
+    redirect: '/login', // 404 重定向到登录页
+  },
 ];
 
 const router = createRouter({
