@@ -34,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
         path: '/user',
         name: 'User',
         component: UserPage,
-        meta: { requiresAuth: true, title: '用户信息' }, // 需要登录
+        meta: { requiresAuth: true, title: '个人中心' }, // 需要登录
       },
     ],
   },
