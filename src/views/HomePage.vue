@@ -25,7 +25,7 @@
             localStorage.removeItem('isAuthenticated');
             router.push('/login');
         }
-    };
+      };
 
     return { goToUserPage, logout };
     },

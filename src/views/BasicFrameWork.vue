@@ -27,9 +27,15 @@
                   </ul>
                 </div>
                 <button class="fullscreen-btn" @click="toggleFullScreen">全屏</button>
-                <div class="user-info">
-                    <img src="/images/1.png" alt="User Avatar" class="avatar" />
-                    <span class="user-name">用户名</span>
+                <div class="user-info-wrapper" @mouseleave="hideUserMenu">
+                    <div class="user-info" @mouseover="showUserMenu">
+                        <img src="/images/1.png" alt="User Avatar" class="avatar" />
+                        <span class="user-name">用户名</span>
+                    </div>
+                    <ul v-if="isUserMenuVisible" class="user-menu">
+                        <li>用户信息</li>
+                        <li @click="logout">登出</li>
+                    </ul>
                 </div>
               </div>
             </header>
@@ -64,7 +70,7 @@
             .find((route) => route.path === '/') // 获取主框架路由
             ?.children?.filter((child) => child.meta?.title) || []
         );
-
+        // 页眉按钮***************************************************************
         const isLanguageMenuVisible = ref(false);
         const currentLanguage = ref('zh'); // 默认语言为中文
 
@@ -88,7 +94,25 @@
                 document.exitFullscreen();
             }
         };
+        // 页眉按钮***************************************************************
+        // 用户信息***************************************************************
+        const isUserMenuVisible = ref(false);
+        const showUserMenu = () => {
+            isUserMenuVisible.value = true;
+        };
 
+        const hideUserMenu = () => {
+            isUserMenuVisible.value = false;
+        };
+        
+        const logout = () => {
+          if (confirm('Are you sure you want to logout?')) {
+              localStorage.removeItem('isAuthenticated');
+              router.push('/login');
+          }
+        };
+
+        // 用户信息***************************************************************
         return { menuRoutes,
             isLanguageMenuVisible,
             currentLanguage,
@@ -96,6 +120,10 @@
             hideLanguageMenu,
             setLanguage,
             toggleFullScreen,
+            isUserMenuVisible,
+            showUserMenu,
+            hideUserMenu,
+            logout,
          };
     },
     });
@@ -213,11 +241,16 @@
     align-items: center;
     gap: 1rem;
 }
+/**用户信息************************************************************* */
+.user-info-wrapper {
+    position: relative;
+}
 
 .user-info {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    cursor: pointer;
 }
 
 .avatar {
@@ -231,6 +264,33 @@
     font-size: 1rem;
 }
 
+.user-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.user-menu li {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: black;
+    width: 60px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.user-menu li:hover {
+    background-color: #f4f4f4;
+}
+/**语言信息************************************************************* */
 .lang-switch-wrapper {
     position: relative;
 }
@@ -293,6 +353,8 @@
 .lang-menu li:hover {
     background-color: #f4f4f4;
 }
+
+
 
   .content {
     flex: 1;
