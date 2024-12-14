@@ -23,7 +23,7 @@
       const logout = () => {
         if (confirm('Are you sure you want to logout?')) {
             localStorage.removeItem('isAuthenticated');
-            router.push('/');
+            router.push('/login');
         }
     };
 

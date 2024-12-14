@@ -16,7 +16,7 @@
       const router = useRouter();
   
       const goBack = () => {
-        router.push('/home'); // 返回主页
+        router.push('/'); // 返回主页
       };
   
       return { goBack };

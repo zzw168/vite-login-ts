@@ -178,7 +178,7 @@ export default defineComponent({
     const handleLogin = () => {
       if (username.value === 'admin' && password.value === '1234') {
         localStorage.setItem('isAuthenticated', 'true');
-        router.push('/home');
+        router.push('/');
       } else {
         errorMessage.value = 'Invalid username or password.';
       }

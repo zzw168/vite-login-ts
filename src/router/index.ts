@@ -8,7 +8,7 @@ import BasicFrameWork from '@/views/BasicFrameWork.vue';
 onMounted(() => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   if (!isAuthenticated) {
-    router.push('/'); // 跳转到登录页面
+    router.push('/login'); // 跳转到登录页面
   }
 });
 
@@ -25,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true }, // 需要登录
     children: [
       {
-        path: '/home',
+        path: '/',
         name: 'Home',
         component: HomePage, // 主页
         meta: { requiresAuth: true, title: '首页'}, // 需要登录
