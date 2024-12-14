@@ -14,7 +14,7 @@
           
           <header class="header">
             <div class="header-left">
-              <h1>网站标题</h1>
+              <h1>{{ currentRouteTitle }}</h1>
             </div>
             <div class="header-right">
               <div class="lang-switch-wrapper" @mouseleave="hideLanguageMenu">
@@ -26,7 +26,10 @@
                     <li @click="setLanguage('en')">English</li>
                 </ul>
               </div>
-              <button class="fullscreen-btn" @click="toggleFullScreen">全屏</button>
+              <button class="fullscreen-btn" @click="toggleFullScreen">
+                    <i class="icon-fullscreen"></i>
+                    全屏
+              </button>
               <div class="user-info-wrapper" @mouseleave="hideUserMenu">
                   <div class="user-info" @mouseover="showUserMenu">
                       <img src="/images/1.png" alt="User Avatar" class="avatar" />
@@ -57,7 +60,7 @@
 
 <script lang="ts">
   import { defineComponent, computed, ref } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
+  import { useRouter,useRoute } from 'vue-router';
 
   export default defineComponent({
   name: 'BasicFrameWork',
@@ -71,6 +74,11 @@
           .find((route) => route.path === '/') // 获取主框架路由
           ?.children?.filter((child) => child.meta?.title) || []
       );
+
+      const currentRouteTitle = computed(() => {
+            return route.meta?.title || '默认标题';
+        });
+
       // 页眉按钮***************************************************************
       const isLanguageMenuVisible = ref(false);
       const currentLanguage = ref('zh'); // 默认语言为中文
@@ -123,6 +131,7 @@
 
       // 用户信息***************************************************************
       return { menuRoutes,
+          currentRouteTitle,
           isLanguageMenuVisible,
           currentLanguage,
           showLanguageMenu,
@@ -364,9 +373,30 @@
 .lang-menu li:hover {
   background-color: #f4f4f4;
 }
+/**全屏按钮************************************************************* */
+.fullscreen-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
+.fullscreen-btn:hover {
+    background-color: #d3d3d3;
+}
 
-
+.icon-fullscreen {
+    width: 16px;
+    height: 16px;
+    background: url('/images/9.png') no-repeat center center;
+    background-size: contain;
+}
+/******************************************************************* */
 .content {
   flex: 1;
   padding: 1rem;
