@@ -80,10 +80,18 @@
         <div class="modal-content">
           <h2>编辑记录</h2>
           <form @submit.prevent="saveEdit">
+            <p><strong>姓名：</strong>
             <input v-model="editableRecord.name" type="text" placeholder="姓名" />
+            </p>
+            <p><strong>年龄：</strong>
             <input v-model="editableRecord.age" type="number" placeholder="年龄" />
+            </p>
+            <p><strong>邮箱：</strong>
             <input v-model="editableRecord.email" type="email" placeholder="邮箱" />
+            </p>
+            <p><strong>头像：</strong>
             <input type="file" @change="handleEditAvatarUpload" accept="image/*" />
+            </p>
             <button type="submit" class="btn btn-save">保存</button>
             <button @click="closeEdit" type="button" class="btn btn-cancel">取消</button>
           </form>
@@ -204,7 +212,9 @@
         if (file && editableRecord.value) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            editableRecord.value!.avatar = e.target?.result as string;
+            if (editableRecord.value) { // 再次检查非空
+                editableRecord.value.avatar = e.target?.result as string;
+            }
           };
           reader.readAsDataURL(file);
         }
