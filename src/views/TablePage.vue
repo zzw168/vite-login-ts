@@ -14,21 +14,49 @@
         <button @click="resetSearch" class="btn btn-reset">重置</button>
       </div>
   
+      <!-- 添加记录按钮 -->
+        <button @click="showAddForm" class="add-btn">添加新记录</button>
+           
       <!-- 添加记录 -->
-      <div class="add-record">
-        <h2>添加新记录</h2>
+      <!-- <div class="add-record">
+        <p><strong>添加新记录</strong></p>
+        
         <form @submit.prevent="addRecord">
-          <input v-model="newRecord.name" type="text" placeholder="姓名" />
-          <input v-model="newRecord.age" type="number" placeholder="年龄" />
-          <input v-model="newRecord.email" type="email" placeholder="邮箱" />
-          <input type="file" @change="handleAvatarUpload" accept="image/*" />
-          <button type="submit" class="btn btn-add">添加</button>
-        </form>
+          <p><input v-model="newRecord.name" type="text" placeholder="姓名" /></p>
+          <p><input v-model="newRecord.age" type="number" placeholder="年龄" /></p>
+          <p><input v-model="newRecord.email" type="email" placeholder="邮箱" /></p>
+          <p><input type="file" @change="handleAvatarUpload" accept="image/*" /></p>
+          <p><button type="submit" class="btn btn-add">添加</button></p>
+        </form> -->
+        
         <!-- 头像预览 -->
-        <div v-if="newRecord.avatar" class="avatar-preview">
+        <!-- <div v-if="newRecord.avatar" class="avatar-preview">
           <img :src="newRecord.avatar" alt="头像预览" />
         </div>
-      </div>
+      </div> -->
+      <!-- 添加记录表单（仅在 isAdding 为 true 时显示） -->
+        <div v-if="isAdding" class="add-form">
+        <h3>添加新记录</h3>
+        <form @submit.prevent="handleAddRecord">
+            <div class="form-group">
+            <label for="name">姓名</label>
+            <input id="name" v-model="newRecord.name" type="text" required />
+            </div>
+            <div class="form-group">
+            <label for="email">邮箱</label>
+            <input id="email" v-model="newRecord.email" type="email" required />
+            </div>
+            <div class="form-group">
+            <label for="avatar">头像</label>
+            <input id="avatar" type="file" @change="handleAvatarUpload" accept="image/*" />
+            <div v-if="newRecord.avatar" class="avatar-preview">
+                <img :src="newRecord.avatar" alt="Avatar Preview" />
+            </div>
+            </div>
+            <button type="submit" class="save-btn">保存记录</button>
+            <button type="button" @click="cancelAdd" class="cancel-btn">取消</button>
+        </form>
+        </div>
   
       <!-- 表格 -->
       <table>
@@ -111,7 +139,7 @@
     name: string;
     age: number;
     email: string;
-    avatar: string;
+    avatar: string | null;
   }
   
   export default defineComponent({
@@ -133,6 +161,8 @@
           avatar: '/images/9.png',
         },
       ]);
+
+
   
       const searchQuery = ref('');
       const newRecord = ref<Record>({
@@ -142,6 +172,29 @@
         email: '',
         avatar: '',
       });
+
+      const placeholderAvatar = '/images/5.png'; // 默认头像
+      const isAdding = ref(false); // 是否显示添加表单
+
+        // 显示添加表单
+        const showAddForm = () => {
+            isAdding.value = true;
+            newRecord.value = { id: 0, name: '',age: 0, email: '', avatar: null }; // 重置表单
+        };
+
+        // 取消添加
+        const cancelAdd = () => {
+        isAdding.value = false;
+        };
+
+        // 保存新记录
+        const handleAddRecord = () => {
+        if (newRecord.value) {
+            newRecord.value.id = Date.now(); // 使用时间戳作为唯一 ID
+            records.value.push({ ...newRecord.value });
+            isAdding.value = false; // 隐藏表单
+        }
+        };
   
       const filteredRecords = computed(() => {
         if (!searchQuery.value) {
@@ -257,6 +310,11 @@
         handleEditAvatarUpload,
         saveEdit,
         closeEdit,
+        isAdding,
+        placeholderAvatar,
+        showAddForm,
+        cancelAdd,
+        handleAddRecord,
       };
     },
   });
@@ -278,9 +336,14 @@
     margin-bottom: 20px;
   }
   
-  .search-bar,
-  .add-record {
+  .search-bar{
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .add-record {
+    /* display: flex; */
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
