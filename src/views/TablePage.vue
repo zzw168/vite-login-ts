@@ -329,6 +329,31 @@
     background-color: #f44336;
     color: white;
   }
+  
+  .btn-close {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .btn-cancel {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .btn-details {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .btn-edit {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .btn-save {
+    background-color: #4caf50;
+    color: white;
+  }
 
   .modal {
     position: fixed;
