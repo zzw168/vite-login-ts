@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import LoginPage from '../views/LoginPage.vue';
 import HomePage from '../views/HomePage.vue';
 import UserPage from '../views/UserPage.vue';
+import TablePage from '../views/TablePage.vue';
 import { onMounted } from 'vue';
 import BasicFrameWork from '@/views/BasicFrameWork.vue';
 
@@ -35,6 +36,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'User',
         component: UserPage,
         meta: { requiresAuth: true, title: '个人中心' }, // 需要登录
+      },
+      {
+        path: '/table',
+        name: 'Table',
+        component: TablePage,
+        meta: { requiresAuth: true, title: '数据中心' }, // 需要登录
       },
     ],
   },
