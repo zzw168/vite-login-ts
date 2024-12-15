@@ -38,6 +38,18 @@
           <label for="phone">手机号</label>
           <input id="phone" v-model="editableUser.phone" type="text" />
         </div>
+        <div class="form-group">
+          <label for="avatar">头像</label>
+          <input
+            id="avatar"
+            type="file"
+            @change="handleAvatarUpload"
+            accept="image/*"
+          />
+          <div v-if="editableUser.avatarPreview" class="avatar-preview">
+            <img :src="editableUser.avatarPreview" alt="Avatar Preview" class="user-avatar" />
+          </div>
+        </div>
         <button type="submit" class="save-btn">保存修改</button>
       </form>
     </div>
@@ -52,20 +64,38 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+interface User {
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string;
+}
+
+interface EditableUser extends Omit<User, 'avatar'> {
+  avatarPreview: string | null;
+}
+
 export default defineComponent({
   name: 'UserProfile',
   setup() {
     const router = useRouter();
     const route = useRoute();
 
-    const user = ref({
+    const user = ref<User>({
       avatar: '/images/1.png', // 替换为实际的头像路径
       name: '示例用户',
       email: 'user@example.com',
       phone: '123-456-7890',
     });
 
-    const editableUser = ref({ ...user.value });
+    // const editableUser = ref({ ...user.value });
+    // 可编辑的用户数据
+    const editableUser = ref<EditableUser>({
+      name: user.value.name,
+      email: user.value.email,
+      phone: user.value.phone,
+      avatarPreview: user.value.avatar,
+    });
 
     const userTitle = computed(() => {
       return route.meta?.title || '个人中心';
@@ -73,9 +103,29 @@ export default defineComponent({
 
     const activeTab = ref<'view' | 'edit'>('view');
 
-    const saveChanges = () => {
-      user.value = { ...editableUser.value };
-      alert('修改已保存！');
+    // 处理头像上传
+    const handleAvatarUpload = (event: Event): void => {
+      const input = event.target as HTMLInputElement;
+      const file = input.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          editableUser.value.avatarPreview = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const saveChanges = (): void => {
+      user.value = {
+        ...user.value,
+        name: editableUser.value.name,
+        email: editableUser.value.email,
+        phone: editableUser.value.phone,
+        avatar: editableUser.value.avatarPreview || user.value.avatar,
+      };
+      activeTab.value = 'view'; // 切换回查看页面
+      alert('资料已更新！');
     };
 
     const logout = () => {
@@ -94,6 +144,7 @@ export default defineComponent({
       editableUser,
       userTitle,
       activeTab,
+      handleAvatarUpload,
       saveChanges,
       logout,
       goBack,
