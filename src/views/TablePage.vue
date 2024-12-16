@@ -15,53 +15,44 @@
       </div>
   
       <!-- 添加记录按钮 -->
-        <button @click="showAddForm" class="add-btn">添加新记录</button>
-           
-      <!-- 添加记录 -->
-      <!-- <div class="add-record">
-        <p><strong>添加新记录</strong></p>
-        
-        <form @submit.prevent="addRecord">
-          <p><input v-model="newRecord.name" type="text" placeholder="姓名" /></p>
-          <p><input v-model="newRecord.age" type="number" placeholder="年龄" /></p>
-          <p><input v-model="newRecord.email" type="email" placeholder="邮箱" /></p>
-          <p><input type="file" @change="handleAvatarUpload" accept="image/*" /></p>
-          <p><button type="submit" class="btn btn-add">添加</button></p>
-        </form> -->
-        
-        <!-- 头像预览 -->
-        <!-- <div v-if="newRecord.avatar" class="avatar-preview">
-          <img :src="newRecord.avatar" alt="头像预览" />
-        </div>
-      </div> -->
+      <p>
+        <button @click="showAddForm" class="btn add-btn">添加新记录</button>
+        <button @click="deleteSelected" class="btn delete-btn">
+            删除选中记录
+        </button>
+      </p>
       <!-- 添加记录表单（仅在 isAdding 为 true 时显示） -->
-        <div v-if="isAdding" class="add-form">
-        <h3>添加新记录</h3>
-        <form @submit.prevent="handleAddRecord">
-            <div class="form-group">
-            <label for="name">姓名</label>
-            <input id="name" v-model="newRecord.name" type="text" required />
-            </div>
-            <div class="form-group">
-            <label for="email">邮箱</label>
-            <input id="email" v-model="newRecord.email" type="email" required />
-            </div>
-            <div class="form-group">
-            <label for="avatar">头像</label>
-            <input id="avatar" type="file" @change="handleAvatarUpload" accept="image/*" />
-            <div v-if="newRecord.avatar" class="avatar-preview">
-                <img :src="newRecord.avatar" alt="Avatar Preview" />
-            </div>
-            </div>
-            <button type="submit" class="save-btn">保存记录</button>
-            <button type="button" @click="cancelAdd" class="cancel-btn">取消</button>
-        </form>
+      <div v-if="isAdding" class="modal">
+        <div class="modal-content">
+          <h3>添加新记录</h3>
+          <form @submit.prevent="handleAddRecord">
+            <p><strong>姓名：</strong>
+              <input id="name" v-model="newRecord.name" type="text" required />
+            </p>
+            <p><strong>年龄：</strong>
+            <input v-model="newRecord.age" type="text" required />
+            </p> 
+            <p><strong>邮箱：</strong>
+              <input id="email" v-model="newRecord.email" type="email" required />
+            </p> 
+            <p><strong>头像：</strong>
+              <input id="avatar" type="file" @change="handleAvatarUpload" accept="image/*" />
+              <div v-if="newRecord.avatar" class="avatar-preview">
+                  <img :src="newRecord.avatar" alt="Avatar Preview" />
+              </div>
+            </p>
+              
+              <button type="submit" class="btn btn-save">保存记录</button>
+              <button type="button" @click="cancelAdd" class="btn btn-cancel">取消</button>
+          </form>
         </div>
+      </div>
   
       <!-- 表格 -->
       <table>
         <thead>
           <tr>
+            <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th>
             <th>序号</th>
             <th>头像</th>
             <th>姓名</th>
@@ -71,23 +62,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(record, index) in filteredRecords" :key="record.id">
-            <td>{{ index + 1 }}</td>
-            <td>
-              <img :src="record.avatar" alt="头像" class="table-avatar" />
-            </td>
-            <td>{{ record.name }}</td>
-            <td>{{ record.age }}</td>
-            <td>{{ record.email }}</td>
-            <td>
-              <button @click="showDetails(record)" class="btn btn-details">详情</button>
-              <button @click="editRecord(record)" class="btn btn-edit">编辑</button>
-              <button @click="deleteRecord(record.id)" class="btn btn-delete">删除</button>
-            </td>
-          </tr>
-          <tr v-if="filteredRecords.length === 0">
-            <td colspan="6" class="no-records">暂无记录</td>
-          </tr>
+            <tr v-for="(record, index) in filteredRecords" :key="record.id">
+              <td>
+                  <input
+                  type="checkbox"
+                  :value="record.id"
+                  v-model="selectedRecordIds"
+                  />
+              </td>
+              <td>{{ index + 1 }}</td>
+              <td>
+                  <img :src="record.avatar || placeholderAvatar" alt="头像" class="table-avatar" />
+              </td>  
+              <td>{{ record.name }}</td>
+              <td>{{ record.age }}</td>
+              <td>{{ record.email }}</td>
+              <td>
+                  <button @click="editRecord(record)" class="btn btn-edit">编辑</button>
+                  <button @click="deleteRecord(record.id)"  class="btn btn-delete">删除</button>
+                  <button @click="showDetails(record)" class="btn btn-details">详情</button>
+              </td>
+            </tr>
         </tbody>
       </table>
   
@@ -95,7 +90,7 @@
       <div v-if="showDetailsModal" class="modal">
         <div class="modal-content">
           <h2>记录详情</h2>
-          <img :src="selectedRecord?.avatar" alt="详情头像" class="details-avatar" />
+          <img :src="selectedRecord?.avatar || placeholderAvatar" alt="详情头像" class="details-avatar" />
           <p><strong>姓名：</strong>{{ selectedRecord?.name }}</p>
           <p><strong>年龄：</strong>{{ selectedRecord?.age }}</p>
           <p><strong>邮箱：</strong>{{ selectedRecord?.email }}</p>
@@ -174,6 +169,26 @@
       });
 
       const placeholderAvatar = '/images/5.png'; // 默认头像
+      const selectedRecordIds = ref<number[]>([]);
+        // 计算是否所有记录都被选中
+        const isAllSelected = computed(() => {
+        return records.value.length > 0 && selectedRecordIds.value.length === records.value.length;
+        });
+
+        // 切换全选/全取消
+        const toggleSelectAll = (event: Event) => {
+        const isChecked = (event.target as HTMLInputElement).checked;
+        selectedRecordIds.value = isChecked ? records.value.map((record) => record.id) : [];
+        };
+
+        // 删除选中的记录
+        const deleteSelected = () => {
+          if (confirm('确定删除选中的记录吗？')) {
+            records.value = records.value.filter((record) => !selectedRecordIds.value.includes(record.id));
+            selectedRecordIds.value = [];
+          }
+        };
+
       const isAdding = ref(false); // 是否显示添加表单
 
         // 显示添加表单
@@ -195,7 +210,7 @@
             isAdding.value = false; // 隐藏表单
         }
         };
-  
+        // 查询记录
       const filteredRecords = computed(() => {
         if (!searchQuery.value) {
           return records.value;
@@ -204,7 +219,8 @@
           record.name.includes(searchQuery.value)
         );
       });
-  
+
+      // 上传头像
       const handleAvatarUpload = (event: Event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
@@ -215,7 +231,8 @@
           reader.readAsDataURL(file);
         }
       };
-  
+
+      // 添加记录
       const addRecord = () => {
         if (newRecord.value.name && newRecord.value.age > 0 && newRecord.value.email) {
           const id = records.value.length
@@ -227,13 +244,15 @@
           alert('请完整填写表单！');
         }
       };
-  
+
+      // 删除记录
       const deleteRecord = (id: number) => {
         if (confirm('确定删除这条记录吗？')) {
           records.value = records.value.filter((record) => record.id !== id);
         }
       };
-  
+      
+      // 搜寻记录
       const searchRecords = () => {};
       const resetSearch = () => {
         searchQuery.value = '';
@@ -253,7 +272,14 @@
       };
   
       const showEditModal = ref(false);
-      const editableRecord = ref<Record | null>(null);
+      // const editableRecord = ref<Record | null>(null);
+      const editableRecord = ref<Record>({
+        id: 0,
+        name: '',
+        age: 0,
+        email: '',
+        avatar: '',
+      });
   
       const editRecord = (record: Record) => {
         editableRecord.value = { ...record };
@@ -286,7 +312,7 @@
       };
   
       const closeEdit = () => {
-        editableRecord.value = null;
+        // editableRecord.value = null;
         showEditModal.value = false;
       };
   
@@ -315,6 +341,11 @@
         showAddForm,
         cancelAdd,
         handleAddRecord,
+        toggleSelectAll,
+        isAllSelected,
+        selectedRecordIds,
+        deleteSelected,
+  
       };
     },
   });
@@ -393,12 +424,12 @@
     color: white;
   }
   
-  .btn-add {
+  .btn-add, .add-btn {
     background-color: #007bff;
     color: white;
   }
   
-  .btn-delete {
+  .btn-delete, .delete-btn {
     background-color: #f44336;
     color: white;
   }
