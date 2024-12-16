@@ -41,9 +41,10 @@
                   <img :src="newRecord.avatar" alt="Avatar Preview" />
               </div>
             </p>
-              
+            <div style="text-align:right;">
               <button type="submit" class="btn btn-save">保存记录</button>
               <button type="button" @click="cancelAdd" class="btn btn-cancel">取消</button>
+            </div>  
           </form>
         </div>
       </div>
@@ -94,7 +95,9 @@
           <p><strong>姓名：</strong>{{ selectedRecord?.name }}</p>
           <p><strong>年龄：</strong>{{ selectedRecord?.age }}</p>
           <p><strong>邮箱：</strong>{{ selectedRecord?.email }}</p>
-          <button @click="closeDetails" class="btn btn-close">关闭</button>
+          <div style="text-align:right;">
+            <button @click="closeDetails" class="btn btn-close">关闭</button>
+          </div>
         </div>
       </div>
   
@@ -103,6 +106,9 @@
         <div class="modal-content">
           <h2>编辑记录</h2>
           <form @submit.prevent="saveEdit">
+            <div v-if="editableRecord.avatar" class="avatar-preview">
+              <img :src="editableRecord.avatar" alt="编辑头像预览" />
+            </div>
             <p><strong>姓名：</strong>
             <input v-model="editableRecord.name" type="text" placeholder="姓名" />
             </p>
@@ -115,12 +121,12 @@
             <p><strong>头像：</strong>
             <input type="file" @change="handleEditAvatarUpload" accept="image/*" />
             </p>
-            <button type="submit" class="btn btn-save">保存</button>
-            <button @click="closeEdit" type="button" class="btn btn-cancel">取消</button>
+            <div style="text-align:right;">
+              <button type="submit" class="btn btn-save">保存</button>
+              <button @click="closeEdit" type="button" class="btn btn-cancel">取消</button>
+            </div>
           </form>
-          <div v-if="editableRecord.avatar" class="avatar-preview">
-            <img :src="editableRecord.avatar" alt="编辑头像预览" />
-          </div>
+          
         </div>
       </div>
     </div>
@@ -476,7 +482,7 @@
     padding: 20px;
     border-radius: 8px;
     max-width: 400px;
-    width: 100%;
+    width: 260px;
     }
 
     .btn-close,
