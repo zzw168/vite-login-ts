@@ -134,6 +134,7 @@
   
   <script lang="ts">
   import { defineComponent, ref, computed } from 'vue';
+  import axios from 'axios';
   
   interface Record {
     id: number;
@@ -287,10 +288,22 @@
         avatar: '',
       });
   
-      const editRecord = (record: Record) => {
-        editableRecord.value = { ...record };
-        showEditModal.value = true;
+      // const editRecord = (record: Record) => {
+      //   editableRecord.value = { ...record };
+      //   showEditModal.value = true;
+      // };
+
+      const editRecord = async (record: Record) => {
+        try {
+          const response = await axios.get(`http://localhost:8086/api/records/${record.id}`);
+          editableRecord.value = response.data; // 从后台获取的数据填充到表单
+          showEditModal.value = true;
+        } catch (error) {
+          console.error('获取记录失败:', error);
+          alert('无法加载记录数据，请稍后重试。');
+        }
       };
+
   
       const handleEditAvatarUpload = (event: Event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
@@ -305,17 +318,36 @@
         }
       };
   
-      const saveEdit = () => {
+      const saveEdit = async () => {
         if (editableRecord.value) {
-          const index = records.value.findIndex(
-            (r) => r.id === editableRecord.value!.id
-          );
-          if (index !== -1) {
-            records.value[index] = { ...editableRecord.value };
+          try {
+            // 发送 PUT 请求到后台服务
+            const response = await axios.put('http://localhost:8086/api/records', {
+              id: editableRecord.value.id,
+              name: editableRecord.value.name,
+              age: editableRecord.value.age,
+              email: editableRecord.value.email,
+              avatar: editableRecord.value.avatar,
+            });
+
+            // 成功后更新前端记录数据
+            const index = records.value.findIndex((r) => r.id === editableRecord.value!.id);
+            if (index !== -1) {
+              records.value[index] = { ...editableRecord.value };
+            }
+
+            // 提示用户保存成功
+            alert('编辑保存成功！');
+
+            // 关闭编辑窗口
+            closeEdit();
+          } catch (error) {
+            console.error('保存失败:', error);
+            alert('保存失败，请稍后重试。');
           }
-          closeEdit();
         }
       };
+
   
       const closeEdit = () => {
         // editableRecord.value = null;
