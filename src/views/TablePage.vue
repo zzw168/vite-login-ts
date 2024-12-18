@@ -176,7 +176,16 @@
         avatar: '',
       });
 
+      const getMaxId = (): number => {
+        if (records.value.length === 0) {
+          return 0; // 如果没有记录，返回默认值
+        }
+        return Math.max(...records.value.map((record) => record.id));
+      };
+
+
       const placeholderAvatar = '/images/5.png'; // 默认头像
+      const new_id = 0;
       const selectedRecordIds = ref<number[]>([]);
         // 计算是否所有记录都被选中
         const isAllSelected = computed(() => {
@@ -199,8 +208,9 @@
         const deleteSelected = async () => {
           if (confirm("确定删除选中的记录吗？")) {
             try {
+              console.log(selectedRecordIds.value)
               await apiClient.post("/records/batch-delete", {
-                ids: selectedRecordIds.value,
+                record_ids: selectedRecordIds.value,
               });
 
               // 从前端移除选中的记录
@@ -248,6 +258,8 @@
         const handleAddRecord = async () => {
           if (newRecord.value) {
             try {
+              const maxId = getMaxId(); // 获取当前最大 ID
+              newRecord.value.id = maxId + 1; // 新记录的 ID 为最大 ID + 1
               const response = await apiClient.post("/records", newRecord.value);
 
               records.value.push(response.data); // 后端返回的数据直接更新前端表格
@@ -404,6 +416,7 @@
         records,
         searchQuery,
         newRecord,
+        getMaxId,
         filteredRecords,
         handleAvatarUpload,
         addRecord,
