@@ -27,6 +27,17 @@
       <h3>编辑资料</h3>
       <form @submit.prevent="saveChanges">
         <div class="form-group">
+          <div v-if="editableUser.avatarPreview" class="avatar-preview">
+            <img :src="editableUser.avatarPreview" alt="Avatar Preview" class="user-avatar" />
+          </div>
+          <input
+            id="avatar"
+            type="file"
+            @change="handleAvatarUpload"
+            accept="image/*"
+          />
+        </div>
+        <div class="form-group">
           <label for="name">用户名</label>
           <input id="name" v-model="editableUser.name" type="text" />
         </div>
@@ -37,18 +48,6 @@
         <div class="form-group">
           <label for="phone">手机号</label>
           <input id="phone" v-model="editableUser.phone" type="text" />
-        </div>
-        <div class="form-group">
-          <label for="avatar">头像</label>
-          <input
-            id="avatar"
-            type="file"
-            @change="handleAvatarUpload"
-            accept="image/*"
-          />
-          <div v-if="editableUser.avatarPreview" class="avatar-preview">
-            <img :src="editableUser.avatarPreview" alt="Avatar Preview" class="user-avatar" />
-          </div>
         </div>
         <button type="submit" class="save-btn">保存修改</button>
       </form>

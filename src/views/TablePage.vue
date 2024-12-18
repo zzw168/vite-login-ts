@@ -26,21 +26,21 @@
         <div class="modal-content">
           <h3>添加新记录</h3>
           <form @submit.prevent="handleAddRecord">
+            <p><strong>头像：</strong>
+              <div v-if="newRecord.avatar" class="avatar-preview">
+                  <img :src="newRecord.avatar" alt="Avatar Preview" />
+              </div>
+              <input id="avatar" type="file" @change="handleAvatarUpload" accept="image/*" />
+            </p>
             <p><strong>姓名：</strong>
               <input id="name" v-model="newRecord.name" type="text" required />
             </p>
             <p><strong>年龄：</strong>
-            <input v-model="newRecord.age" type="text" required />
+              <input v-model="newRecord.age" type="text" required />
             </p> 
             <p><strong>邮箱：</strong>
               <input id="email" v-model="newRecord.email" type="email" required />
             </p> 
-            <p><strong>头像：</strong>
-              <input id="avatar" type="file" @change="handleAvatarUpload" accept="image/*" />
-              <div v-if="newRecord.avatar" class="avatar-preview">
-                  <img :src="newRecord.avatar" alt="Avatar Preview" />
-              </div>
-            </p>
             <div style="text-align:right;">
               <button type="submit" class="btn btn-save">保存记录</button>
               <button type="button" @click="cancelAdd" class="btn btn-cancel">取消</button>
@@ -133,8 +133,9 @@
   </template>
   
   <script lang="ts">
-  import { defineComponent, ref, computed } from 'vue';
+  import { defineComponent, ref, computed, onMounted } from 'vue';
   import axios from 'axios';
+  import apiClient from "@/plugins/axios";
   
   interface Record {
     id: number;
@@ -189,12 +190,39 @@
         };
 
         // 删除选中的记录
-        const deleteSelected = () => {
-          if (confirm('确定删除选中的记录吗？')) {
-            records.value = records.value.filter((record) => !selectedRecordIds.value.includes(record.id));
-            selectedRecordIds.value = [];
+        // const deleteSelected = () => {
+        //   if (confirm('确定删除选中的记录吗？')) {
+        //     records.value = records.value.filter((record) => !selectedRecordIds.value.includes(record.id));
+        //     selectedRecordIds.value = [];
+        //   }
+        // };
+        const deleteSelected = async () => {
+          if (confirm("确定删除选中的记录吗？")) {
+            try {
+              await apiClient.post("/records/batch-delete", {
+                ids: selectedRecordIds.value,
+              });
+
+              // 从前端移除选中的记录
+              records.value = records.value.filter((record) => !selectedRecordIds.value.includes(record.id));
+              selectedRecordIds.value = [];
+            } catch (error) {
+              console.error("批量删除失败：", error);
+              alert(`批量删除失败：${error || "未知错误"}`);
+            }
           }
         };
+
+        onMounted(async () => {
+          try {
+            const response = await apiClient.get("/records");
+            records.value = response.data; // 初始化记录
+            console.log(records.value)
+          } catch (error) {
+            console.error("获取记录失败：", error);
+            alert("无法加载记录，请检查网络连接或后台服务是否正常");
+          }
+        });
 
       const isAdding = ref(false); // 是否显示添加表单
 
@@ -210,13 +238,27 @@
         };
 
         // 保存新记录
-        const handleAddRecord = () => {
-        if (newRecord.value) {
-            newRecord.value.id = Date.now(); // 使用时间戳作为唯一 ID
-            records.value.push({ ...newRecord.value });
-            isAdding.value = false; // 隐藏表单
-        }
+        // const handleAddRecord = () => {
+        // if (newRecord.value) {
+        //     newRecord.value.id = Date.now(); // 使用时间戳作为唯一 ID
+        //     records.value.push({ ...newRecord.value });
+        //     isAdding.value = false; // 隐藏表单
+        // }
+        // };
+        const handleAddRecord = async () => {
+          if (newRecord.value) {
+            try {
+              const response = await apiClient.post("/records", newRecord.value);
+
+              records.value.push(response.data); // 后端返回的数据直接更新前端表格
+              isAdding.value = false; // 隐藏添加记录表单
+            } catch (error) {
+              console.error("新增记录失败：", error);
+              alert(`新增记录失败：${error || "未知错误"}`);
+            }
+          }
         };
+
         // 查询记录
       const filteredRecords = computed(() => {
         if (!searchQuery.value) {
@@ -253,11 +295,23 @@
       };
 
       // 删除记录
-      const deleteRecord = (id: number) => {
-        if (confirm('确定删除这条记录吗？')) {
-          records.value = records.value.filter((record) => record.id !== id);
+      // const deleteRecord = (id: number) => {
+      //   if (confirm('确定删除这条记录吗？')) {
+      //     records.value = records.value.filter((record) => record.id !== id);
+      //   }
+      // };
+      const deleteRecord = async (id: number) => {
+        if (confirm("确定删除这条记录吗？")) {
+          try {
+            await apiClient.delete(`/records/${id}`);
+            records.value = records.value.filter((record) => record.id !== id); // 前端移除该记录
+          } catch (error) {
+            console.error("删除记录失败：", error);
+            alert(`删除记录失败：${error || "未知错误"}`);
+          }
         }
       };
+
       
       // 搜寻记录
       const searchRecords = () => {};
@@ -295,7 +349,7 @@
 
       const editRecord = async (record: Record) => {
         try {
-          const response = await axios.get(`http://localhost:8086/api/records/${record.id}`);
+          const response = await axios.get(`http://localhost:8086/records/${record.id}`);
           editableRecord.value = response.data; // 从后台获取的数据填充到表单
           showEditModal.value = true;
         } catch (error) {
@@ -318,32 +372,24 @@
         }
       };
   
+      // 保存编辑后的记录
       const saveEdit = async () => {
         if (editableRecord.value) {
           try {
-            // 发送 PUT 请求到后台服务
-            const response = await axios.put('http://localhost:8086/api/records', {
-              id: editableRecord.value.id,
-              name: editableRecord.value.name,
-              age: editableRecord.value.age,
-              email: editableRecord.value.email,
-              avatar: editableRecord.value.avatar,
-            });
-
-            // 成功后更新前端记录数据
-            const index = records.value.findIndex((r) => r.id === editableRecord.value!.id);
+            const response = await axios.put(
+              `http://localhost:8086/records/${editableRecord.value.id}`,
+              editableRecord.value
+            );
+            // 更新本地数据
+            const index = records.value.findIndex((r) => r.id === editableRecord.value.id);
             if (index !== -1) {
-              records.value[index] = { ...editableRecord.value };
+              records.value[index] = response.data;
             }
-
-            // 提示用户保存成功
-            alert('编辑保存成功！');
-
-            // 关闭编辑窗口
+            alert('记录已成功保存！');
             closeEdit();
           } catch (error) {
-            console.error('保存失败:', error);
-            alert('保存失败，请稍后重试。');
+            console.error('编辑记录失败：', error);
+            alert('保存失败，请稍后重试！');
           }
         }
       };
