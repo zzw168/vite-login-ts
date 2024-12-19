@@ -65,6 +65,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios'; // 添加这一行
 
 export default defineComponent({
   name: 'LoginPage',
@@ -73,6 +74,35 @@ export default defineComponent({
     const password = ref('');
     const errorMessage = ref('');
     const router = useRouter();
+
+    // 登录逻辑
+    // const handleLogin = () => {
+    //   if (username.value === 'admin' && password.value === '1234') {
+    //     localStorage.setItem('isAuthenticated', 'true');
+    //     router.push('/');
+    //   } else {
+    //     errorMessage.value = 'Invalid username or password.';
+    //   }
+    // };
+    const handleLogin = async () => {
+      try {
+        const response = await axios.post('http://localhost:8086/api/login', {
+          username: username.value,
+          password: password.value,
+        });
+        console.log('Login successful:', response.data);
+        // 处理登录成功逻辑，例如跳转到用户主页
+        if (response.data.role === 'admin') {
+          localStorage.setItem('isAuthenticated', 'true');
+          router.push('/');
+        } else {
+          errorMessage.value = 'Invalid username or password.';
+        }
+      } catch (error) {
+        console.error('Error logging in:', error);
+        // 处理登录失败逻辑，例如显示错误消息
+      }
+    };
 
     // 图片数组
     const images = ref([
@@ -173,16 +203,6 @@ export default defineComponent({
     onUnmounted(() => {
       stopAutoSlide();
     });
-
-    // 登录逻辑
-    const handleLogin = () => {
-      if (username.value === 'admin' && password.value === '1234') {
-        localStorage.setItem('isAuthenticated', 'true');
-        router.push('/');
-      } else {
-        errorMessage.value = 'Invalid username or password.';
-      }
-    };
 
     return {
       username,

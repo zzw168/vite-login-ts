@@ -22,18 +22,35 @@ class Record(BaseModel):
     email: str
     avatar: str = None  # 可选字段，默认值为 None
 
-# 模拟数据库
-records = [
-    Record(id=1, name="张三", age=28, email="zhangsan@example.com", avatar="/images/1.png"),
-    Record(id=2, name="李四", age=32, email="lisi@example.com", avatar="/images/9.png"),
-]
-
 class User(BaseModel):
     name: str
     email: str
     phone: str
     avatar: Optional[str] = None
     password: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+# 模拟数据库
+records = [
+    Record(id=1, name="张三", age=28, email="zhangsan@example.com", avatar="/images/1.png"),
+    Record(id=2, name="李四", age=32, email="lisi@example.com", avatar="/images/9.png"),
+]
+
+users = [
+    {"username": "admin", "password": "1234"},
+    {"username": "user", "password": "1234"},
+]
+
+# 登录接口
+@app.post("/api/login")
+async def login(login_request: LoginRequest):
+    for user in users:
+        if user["username"] == login_request.username and user["password"] == login_request.password:
+            return {"message": "Login successful", "role": "admin" if login_request.username == "admin" else "user"}
+    raise HTTPException(status_code=401, detail="Invalid username or password")
 
 # 保存用户资料
 @app.post("/api/saveUser")
