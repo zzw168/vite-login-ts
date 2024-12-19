@@ -42,6 +42,10 @@
           <input id="name" v-model="editableUser.name" type="text" />
         </div>
         <div class="form-group">
+          <label for="password">密码</label>
+          <input id="password" v-model="editableUser.password" type="password" placeholder="Password"  />
+        </div>
+        <div class="form-group">
           <label for="email">邮箱</label>
           <input id="email" v-model="editableUser.email" type="email" />
         </div>
@@ -62,12 +66,14 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios'; // 添加这一行
 
 interface User {
   name: string;
   email: string;
   phone: string;
   avatar: string;
+  password: string;
 }
 
 interface EditableUser extends Omit<User, 'avatar'> {
@@ -85,15 +91,16 @@ export default defineComponent({
       name: '示例用户',
       email: 'user@example.com',
       phone: '123-456-7890',
+      password: '',
     });
 
-    // const editableUser = ref({ ...user.value });
     // 可编辑的用户数据
     const editableUser = ref<EditableUser>({
       name: user.value.name,
       email: user.value.email,
       phone: user.value.phone,
       avatarPreview: user.value.avatar,
+      password: '', // 添加这一行
     });
 
     const userTitle = computed(() => {
@@ -115,16 +122,41 @@ export default defineComponent({
       }
     };
 
-    const saveChanges = (): void => {
-      user.value = {
-        ...user.value,
-        name: editableUser.value.name,
-        email: editableUser.value.email,
-        phone: editableUser.value.phone,
-        avatar: editableUser.value.avatarPreview || user.value.avatar,
-      };
-      activeTab.value = 'view'; // 切换回查看页面
-      alert('资料已更新！');
+    // const saveChanges = (): void => {
+    //   user.value = {
+    //     ...user.value,
+    //     name: editableUser.value.name,
+    //     email: editableUser.value.email,
+    //     phone: editableUser.value.phone,
+    //     avatar: editableUser.value.avatarPreview || user.value.avatar,
+    //     password: editableUser.value.password, // 添加这一行
+    //   };
+    //   activeTab.value = 'view'; // 切换回查看页面
+    //   alert('资料已更新！');
+    // };
+    const saveChanges = async (): Promise<void> => {
+      try {
+        const response = await axios.post('http://localhost:8086/api/saveUser', {
+          name: editableUser.value.name,
+          email: editableUser.value.email,
+          phone: editableUser.value.phone,
+          avatar: editableUser.value.avatarPreview,
+          password: editableUser.value.password,
+        });
+        console.log('User saved successfully:', response.data);
+        // 更新 user 数据
+        user.value = {
+          ...user.value,
+          name: editableUser.value.name,
+          email: editableUser.value.email,
+          phone: editableUser.value.phone,
+          avatar: editableUser.value.avatarPreview || user.value.avatar,
+          password: editableUser.value.password,
+        };
+        activeTab.value = 'view';
+      } catch (error) {
+        console.error('Error saving user:', error);
+      }
     };
 
     const logout = () => {

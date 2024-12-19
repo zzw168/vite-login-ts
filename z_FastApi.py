@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -27,6 +27,22 @@ records = [
     Record(id=1, name="张三", age=28, email="zhangsan@example.com", avatar="/images/1.png"),
     Record(id=2, name="李四", age=32, email="lisi@example.com", avatar="/images/9.png"),
 ]
+
+class User(BaseModel):
+    name: str
+    email: str
+    phone: str
+    avatar: Optional[str] = None
+    password: str
+
+# 保存用户资料
+@app.post("/api/saveUser")
+async def save_user(user: User):
+    # 模拟保存用户资料的逻辑
+    print(f"Saving user: {user}")
+    # 这里可以添加实际的数据库保存逻辑
+    return {"message": "User saved successfully", "user": user}
+
 
 # 获取所有记录
 @app.get("/records", response_model=List[Record])
