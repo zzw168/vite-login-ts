@@ -3,6 +3,7 @@ import LoginPage from '../views/LoginPage.vue';
 import HomePage from '../views/HomePage.vue';
 import UserPage from '../views/UserPage.vue';
 import TablePage from '../views/TablePage.vue';
+import PiePage from '../views/PiePage.vue';
 import { onMounted } from 'vue';
 import BasicFrameWork from '@/views/BasicFrameWork.vue';
 
@@ -42,6 +43,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'Table',
         component: TablePage,
         meta: { requiresAuth: true, title: '数据中心' }, // 需要登录
+      },
+      {
+        path: '/pie',
+        name: 'Pie',
+        component: PiePage,
+        meta: { requiresAuth: true, title: '图表中心' }, // 需要登录
       },
     ],
   },

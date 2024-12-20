@@ -76,14 +76,6 @@ export default defineComponent({
     const router = useRouter();
 
     // 登录逻辑
-    // const handleLogin = () => {
-    //   if (username.value === 'admin' && password.value === '1234') {
-    //     localStorage.setItem('isAuthenticated', 'true');
-    //     router.push('/');
-    //   } else {
-    //     errorMessage.value = 'Invalid username or password.';
-    //   }
-    // };
     const handleLogin = async () => {
       try {
         const response = await axios.post('http://localhost:8086/api/login', {
