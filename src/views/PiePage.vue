@@ -68,7 +68,7 @@ export default defineComponent({
             datasets: [
               {
                 label: '销售额',
-                data: [500, 400, 300, 700, 600, 800],
+                data: [500, 350, 450, 700, 600, 800],
                 backgroundColor: '#36A2EB',
               },
             ],
@@ -95,7 +95,7 @@ export default defineComponent({
             datasets: [
               {
                 label: '销售额',
-                data: [500, 400, 300, 700, 600, 800],
+                data: [500, 350, 450, 700, 600, 800],
                 borderColor: '#FF6384',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: true,

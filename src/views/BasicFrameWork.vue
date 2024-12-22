@@ -156,15 +156,9 @@
 }
 
 /*左侧菜单样式*************************************************** */ 
-.sidebar {
-  width: 150px;
-  background-color: #f4f4f4;
-  padding: 1rem;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
 
 .sidebar {
-  width: 250px;
+  width: 150px;
   background-color: #f4f4f4;
   padding: 1rem;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
